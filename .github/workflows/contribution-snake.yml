@@ -15,15 +15,62 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: Generate light and dark animations
-        uses: Platane/snk/svg-only@v3
-        with:
-          github_user_name: ${{ github.repository_owner }}
-          outputs: |
-            dist/contribution-snake.svg?color_snake=%237c3aed
-            dist/contribution-snake-dark.svg?palette=github-dark&color_snake=%23c4b5fd
+      - name: Render a snake that stays on the contribution grid
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
+          PROFILE_OWNER: ${{ github.repository_owner }}
+        run: |
+          gh api graphql -f query='query($login: String!) { user(login: $login) { contributionsCollection { contributionCalendar { weeks { contributionDays { weekday contributionCount } } } } } }' -f login="$PROFILE_OWNER" > calendar.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          data = json.loads(Path('calendar.json').read_text())
+          weeks = data['data']['user']['contributionsCollection']['contributionCalendar']['weeks']
+          cells = {(x, day['weekday']): day['contributionCount']
+                   for x, week in enumerate(weeks) for day in week['contributionDays']}
+          columns = [x for x in range(len(weeks)) if all((x, y) in cells for y in range(7))]
+          columns = columns[:len(columns) - len(columns) % 2]
+          assert len(columns) >= 2
+
+          # Reserve the top row for the return leg. The other six rows form a serpentine route.
+          route = [(x, 0) for x in reversed(columns)]
+          for index, x in enumerate(columns):
+              rows = range(1, 7) if index % 2 == 0 else range(6, 0, -1)
+              route.extend((x, y) for y in rows)
+          route.append(route[0])
+          assert all(cell in cells for cell in route)
+          assert all(abs(a[0] - b[0]) + abs(a[1] - b[1]) == 1 for a, b in zip(route, route[1:]))
+
+          step, pad = 15, 6
+          width, height = len(weeks) * step + 2 * pad - 3, 7 * step + 2 * pad - 3
+          duration = (len(route) - 1) * 0.075
+          motion = ''.join(f'{i * 100 / (len(route) - 1):.6f}%{{transform:translate({pad + x * step}px,{pad + y * step}px)}}'
+                           for i, (x, y) in enumerate(route))
+          dest = Path('dist')
+          dest.mkdir(exist_ok=True)
+
+          def render(filename, colors, tones):
+              parts = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" role="img">',
+                       '<title>Con sâu trên biểu đồ đóng góp GitHub của tue1501</title>',
+                       f'<style>@keyframes travel{{{motion}}}.segment{{animation:travel {duration:.3f}s linear infinite}}'
+                       '@media(prefers-reduced-motion:reduce){.segment{animation:none}}</style>']
+              for (x, y), count in cells.items():
+                  level = sum(count >= boundary for boundary in (1, 3, 6, 10))
+                  parts.append(f'<rect x="{pad + x * step}" y="{pad + y * step}" width="12" height="12" rx="2" fill="{colors[level]}"/>')
+              for index, color in reversed(list(enumerate(tones))):
+                  x, y = route[-index - 1] if index else route[0]
+                  parts.append(f'<g class="segment" style="animation-delay:-{duration - index * 0.075:.3f}s" transform="translate({pad + x * step} {pad + y * step})">'
+                               f'<rect x="1" y="1" width="10" height="10" rx="3" fill="{color}"/></g>')
+              parts.append('</svg>')
+              (dest / filename).write_text('\n'.join(parts), encoding='utf-8')
+
+          render('contribution-snake-grid.svg', ('#ebedf0', '#9be9a8', '#40c463', '#30a14e', '#216e39'),
+                 ('#6929d4', '#7c3aed', '#8b5cf6', '#a78bfa', '#c4b5fd'))
+          render('contribution-snake-grid-dark.svg', ('#161b22', '#0e4429', '#006d32', '#26a641', '#39d353'),
+                 ('#e9d5ff', '#d8b4fe', '#c084fc', '#a855f7', '#9333ea'))
+          print(f'Validated {len(route) - 1} adjacent moves across {len(columns)} complete weeks.')
+          PY
       - name: Publish SVG files to the output branch
         uses: crazy-max/ghaction-github-pages@v4
         with:
