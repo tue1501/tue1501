@@ -52,8 +52,8 @@
 <p align="center">
   <a href="https://github.com/tue1501#js-contribution-activity">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/tue1501/tue1501/output/contribution-snake-grid-dark.svg">
-      <img src="https://raw.githubusercontent.com/tue1501/tue1501/output/contribution-snake-grid.svg" alt="Con sâu chạy trên biểu đồ đóng góp GitHub của tue1501" width="100%">
+      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/tue1501/tue1501/output/contribution-snake-grid-dark.svg?v=3">
+      <img src="https://raw.githubusercontent.com/tue1501/tue1501/output/contribution-snake-grid.svg?v=3" alt="Con sâu chạy trên biểu đồ đóng góp GitHub của tue1501" width="100%">
     </picture>
   </a>
 </p>
