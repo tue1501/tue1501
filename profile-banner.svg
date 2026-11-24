@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 394" role="img" aria-labelledby="title">
+<title id="title">Nguyễn Vũ Minh Tuệ · Backend APIs, Admin Dashboards and Web Apps</title>
+<defs>
+  <linearGradient id="background"><stop stop-color="#101923"/><stop offset="1" stop-color="#153a3b"/></linearGradient>
+  <pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M30 0H0V30" fill="none" stroke="#285051"/></pattern>
+</defs>
+<rect width="1440" height="394" rx="20" fill="url(#background)"/>
+<rect x="941" y="20" width="479" height="354" fill="url(#grid)"/>
+<rect x="16" y="16" width="1408" height="362" rx="12" stroke="#36575c" stroke-width="2" fill="none"/>
+<path d="M72 75h136M72 321h1296" stroke="#43696b" stroke-width="2"/>
+<path d="M72 75h52M72 321h136" stroke="#77f3ce" stroke-width="3"/>
+<text x="72" y="132" fill="#77f3ce" font-family="monospace" font-weight="700" font-size="30">@tue1501</text>
+<text x="69" y="222" fill="#f5fefc" font-family="DejaVu Sans, Arial, sans-serif" font-weight="700" font-size="68">Nguyễn Vũ Minh Tuệ</text>
+<text x="72" y="278" fill="#b5d4d2" font-family="DejaVu Sans, Arial, sans-serif" font-size="30">Backend APIs  /  Admin Dashboards  /  Web Apps</text>
+<rect x="991" y="69" width="334" height="207" rx="5" fill="#142c31" stroke="#36575c" stroke-width="2"/>
+<path d="M991 109h334" stroke="#36575c" stroke-width="2"/>
+<g fill="#4b8582"><circle cx="1016" cy="90" r="4"/><circle cx="1034" cy="90" r="4"/><circle cx="1052" cy="90" r="4"/></g>
+<g font-family="monospace" font-size="24" fill="#d4e9e7">
+  <text x="1014" y="151" fill="#77f3ce" font-weight="700">&gt; REST APIs</text>
+  <text x="1014" y="196">&gt; Web apps</text>
+  <text x="1014" y="241">&gt; Admin tools</text>
+</g>
+</svg>
