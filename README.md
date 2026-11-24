@@ -38,13 +38,18 @@
 ## Toolbox
 
 <p align="center">
-  <img src="https://skillicons.dev/icons?i=nodejs,express,mongodb,ts,react,nextjs,git,github&amp;perline=8" alt="Node.js, Express, MongoDB, TypeScript, React, Next.js, Git và GitHub" width="490">
+  <img src="https://skillicons.dev/icons?i=nodejs,express,mongodb,ts,react,nextjs,github,postman,vscode&amp;perline=9" alt="Node.js, Express, MongoDB, TypeScript, React, Next.js, GitHub, Postman và VS Code" width="495">
+  <br>
+  <img src="https://img.shields.io/badge/Antigravity-4285F4?style=for-the-badge&amp;logo=google&amp;logoColor=white" alt="Antigravity">
 </p>
 
 ## Đóng góp trên GitHub
 
 <p align="center">
   <a href="https://github.com/tue1501#js-contribution-activity">
-    <img src="https://ghchart.rshah.org/2ea043/tue1501" alt="Biểu đồ đóng góp GitHub của tue1501" width="100%">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/tue1501/tue1501/output/contribution-snake-dark.svg">
+      <img src="https://raw.githubusercontent.com/tue1501/tue1501/output/contribution-snake.svg" alt="Con sâu chạy trên biểu đồ đóng góp GitHub của tue1501" width="100%">
+    </picture>
   </a>
 </p>
