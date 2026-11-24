@@ -27,13 +27,6 @@
       <p><code>Next.js</code> <code>React</code> <code>TypeScript</code> <code>viem</code></p>
     </td>
     <td width="50%" valign="top">
-      <h3><a href="https://github.com/Thanh123st/iot-mach-nhom">Phòng thông minh ESP32 ↗</a></h3>
-      <p>Trong dự án nhóm, mình bổ sung tài nguyên cho dashboard web, làm bản trình bày trên trình duyệt và sơ đồ khối hệ thống.</p>
-      <p><code>HTML</code> <code>ESP32</code></p>
-    </td>
-  </tr>
-  <tr>
-    <td colspan="2" valign="top">
       <h3><a href="https://github.com/tue1501/Hospital">Hospital ↗</a></h3>
       <p>Backend quản lý bệnh viện với API đặt lịch khám, quản lý bác sĩ và phòng khám, hồ sơ bệnh án, đơn thuốc và kết quả xét nghiệm.</p>
       <p><code>Node.js</code> <code>Express</code> <code>MongoDB</code> <code>Mongoose</code></p>
