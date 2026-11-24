@@ -29,97 +29,97 @@ jobs:
           weeks = data['data']['user']['contributionsCollection']['contributionCalendar']['weeks']
           cells = {(x, day['weekday']): day['contributionCount']
                    for x, week in enumerate(weeks) for day in week['contributionDays']}
-          columns = [x for x in range(len(weeks)) if all((x, y) in cells for y in range(7))]
-          columns = columns[:len(columns) - len(columns) % 2]
-          assert len(columns) >= 2
+          from collections import deque
 
-          # Join loops on adjacent 2x2 tiles, then weave the last row into the route.
-          from random import Random
+          body_size = 5
+          start = min(cells, key=lambda cell: (-cell[0], abs(cell[1] - 3)))
+          route = [start]
+          pending = {cell for cell, count in cells.items() if count > 0}
+          eaten = {}
+          if start in pending:
+              eaten[start] = 0
+              pending.remove(start)
 
-          links = {cell: set() for cell in cells}
-
-          def connect(a, b):
-              links[a].add(b)
-              links[b].add(a)
-
-          def disconnect(a, b):
-              links[a].remove(b)
-              links[b].remove(a)
-
-          tiles = {(x, y) for x in columns[::2] for y in (0, 2, 4)}
-          for x, y in tiles:
-              corners = [(x, y), (x + 1, y), (x + 1, y + 1), (x, y + 1)]
-              for a, b in zip(corners, corners[1:] + corners[:1]):
-                  connect(a, b)
-
-          rng = Random(1501)
-          start = (columns[0], 0)
-          seen = {start}
-          frontier = [start]
-          while frontier:
-              x, y = frontier[-1]
-              neighbors = [(x + dx, y + dy) for dx, dy in ((2, 0), (-2, 0), (0, 2), (0, -2))
-                           if (x + dx, y + dy) in tiles - seen]
-              if not neighbors:
-                  frontier.pop()
+          while pending:
+              head = route[-1]
+              blocked = set(route[-body_size:-1])
+              queue = deque([head])
+              previous = {head: None}
+              target = None
+              while queue:
+                  x, y = queue.popleft()
+                  if (x, y) in pending:
+                      target = (x, y)
+                      break
+                  for neighbor in ((x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)):
+                      if neighbor in cells and neighbor not in blocked and neighbor not in previous:
+                          previous[neighbor] = (x, y)
+                          queue.append(neighbor)
+              if target is None:
+                  # Move the tail if it blocks access to the remaining food.
+                  x, y = head
+                  exits = [(x + dx, y + dy) for dx, dy in ((-1, 0), (1, 0), (0, -1), (0, 1))]
+                  exits = [cell for cell in exits if cell in cells and cell not in blocked]
+                  if not exits or len(route) >= len(cells) * 4:
+                      break
+                  route.append(min(exits, key=route.count))
                   continue
-              nx, ny = rng.choice(neighbors)
-              seen.add((nx, ny))
-              frontier.append((nx, ny))
-              if nx != x:
-                  left = min(x, nx) + 1
-                  a, b, c, d = (left, y), (left, y + 1), (left + 1, y), (left + 1, y + 1)
-              else:
-                  top = min(y, ny) + 1
-                  a, b, c, d = (x, top), (x + 1, top), (x, top + 1), (x + 1, top + 1)
-              disconnect(a, b)
-              disconnect(c, d)
-              connect(a, c)
-              connect(b, d)
+              path = []
+              cursor = target
+              while cursor != head:
+                  path.append(cursor)
+                  cursor = previous[cursor]
+              route.extend(reversed(path))
+              eaten[target] = len(route) - 1
+              pending.remove(target)
 
-          for x in columns[::2]:
-              a, b = (x, 5), (x + 1, 5)
-              c, d = (x, 6), (x + 1, 6)
-              disconnect(a, b)
-              connect(a, c)
-              connect(c, d)
-              connect(d, b)
-
-          route = [start, min(links[start])]
-          while route[-1] != start:
-              route.append(next(iter(links[route[-1]] - {route[-2]})))
-          assert len(set(route[:-1])) == len(route) - 1 == len(columns) * 7
           assert all(cell in cells for cell in route)
           assert all(abs(a[0] - b[0]) + abs(a[1] - b[1]) == 1 for a, b in zip(route, route[1:]))
-
+          assert all(cell not in route[max(0, i - body_size + 1):i] for i, cell in enumerate(route))
           step, pad = 15, 6
           width, height = len(weeks) * step + 2 * pad - 3, 7 * step + 2 * pad - 3
-          duration = (len(route) - 1) * 0.090
-          motion = ''.join(f'{i * 100 / (len(route) - 1):.6f}%{{transform:translate({pad + x * step}px,{pad + y * step}px)}}'
-                           for i, (x, y) in enumerate(route))
+          ticks = max(1, len(route) - 1) + body_size - 1
+          duration = max(5, ticks * 0.145 / 0.88)
           dest = Path('dist')
           dest.mkdir(exist_ok=True)
 
           def render(filename, colors, tones):
+              styles = ['@keyframes fade{0%{opacity:0}3%,91%{opacity:1}97%,100%{opacity:0}}',
+                        '@media(prefers-reduced-motion:reduce){.snake,.food-reset{display:none}}']
               parts = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" role="img">',
-                       '<title>Con sâu trên biểu đồ đóng góp GitHub của tue1501</title>',
-                       f'<style>@keyframes travel{{{motion}}}.segment{{animation:travel {duration:.3f}s linear infinite}}'
-                       '@media(prefers-reduced-motion:reduce){.segment{animation:none}}</style>']
+                       '<title>Con sâu tìm các ô đóng góp của tue1501</title>']
+              tiles = []
               for (x, y), count in cells.items():
                   level = sum(count >= boundary for boundary in (1, 3, 6, 10))
-                  parts.append(f'<rect x="{pad + x * step}" y="{pad + y * step}" width="12" height="12" rx="2" fill="{colors[level]}"/>')
+                  shape = f'x="{pad + x * step}" y="{pad + y * step}" width="12" height="12" rx="2"'
+                  tiles.append(f'<rect {shape} fill="{colors[level]}"/>')
+                  if (x, y) in eaten:
+                      n = eaten[x, y]
+                      threshold = 3 + 85 * n / ticks
+                      name = f'eat{x}_{y}'
+                      styles.append(f'@keyframes {name}{{0%,{threshold:.5f}%{{opacity:0}}{threshold + 0.001:.5f}%,100%{{opacity:1}}}}')
+                      tiles.append(f'<rect class="food-reset" {shape} fill="{colors[0]}" style="animation:{name} {duration:.3f}s linear infinite"/>')
+              segments = []
               for index, color in reversed(list(enumerate(tones))):
-                  x, y = route[-index - 1] if index else route[0]
-                  parts.append(f'<g class="segment" style="animation-delay:-{duration - index * 0.090:.3f}s" transform="translate({pad + x * step} {pad + y * step})">'
-                               f'<rect x="1" y="1" width="10" height="10" rx="3" fill="{color}"/></g>')
-              parts.append('</svg>')
+                  frames = []
+                  for tick in range(ticks + 1):
+                      x, y = route[min(len(route) - 1, max(0, tick - index))]
+                      frames.append(f'{3 + 85 * tick / ticks:.5f}%{{transform:translate({pad + x * step}px,{pad + y * step}px)}}')
+                  styles.append(f'@keyframes travel{index}{{{"".join(frames)}}}')
+                  size = 11 if index == 0 else 10 - index // 2
+                  offset = (12 - size) / 2
+                  segments.append(f'<g style="animation:travel{index} {duration:.3f}s linear infinite">'
+                                  f'<rect x="{offset}" y="{offset}" width="{size}" height="{size}" rx="3" fill="{color}"/></g>')
+              parts.extend(['<style>' + ''.join(styles) + '</style>', *tiles,
+                            f'<g class="snake" style="animation:fade {duration:.3f}s linear infinite">',
+                            *segments, '</g>', '</svg>'])
               (dest / filename).write_text('\n'.join(parts), encoding='utf-8')
 
           render('contribution-snake-grid.svg', ('#ebedf0', '#9be9a8', '#40c463', '#30a14e', '#216e39'),
                  ('#6929d4', '#7c3aed', '#8b5cf6', '#a78bfa', '#c4b5fd'))
           render('contribution-snake-grid-dark.svg', ('#161b22', '#0e4429', '#006d32', '#26a641', '#39d353'),
                  ('#e9d5ff', '#d8b4fe', '#c084fc', '#a855f7', '#9333ea'))
-          print(f'Validated {len(route) - 1} adjacent moves across {len(columns)} complete weeks.')
+          print(f'Validated {len(route) - 1} adjacent moves and ate {len(eaten)} of {len(eaten) + len(pending)} contribution cells.')
           PY
       - name: Publish SVG files to the output branch
         uses: crazy-max/ghaction-github-pages@v4
