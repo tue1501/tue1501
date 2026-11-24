@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="profile-banner.svg" alt="Nguyễn Vũ Minh Tuệ · @tue1501 · Backend APIs, Admin Dashboards &amp; Web Apps" width="100%">
+  <img src="https://raw.githubusercontent.com/tue1501/tue1501/ddffe5385d3d0ca1bcba648b39c049cce6aa8909/profile-banner.svg" alt="Nguyễn Vũ Minh Tuệ · @tue1501 · Node.js, Express, MongoDB, Next.js, React và TypeScript" width="100%">
 </p>
 
 <p align="center">
