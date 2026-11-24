@@ -33,18 +33,68 @@ jobs:
           columns = columns[:len(columns) - len(columns) % 2]
           assert len(columns) >= 2
 
-          # Reserve the top row for the return leg. The other six rows form a serpentine route.
-          route = [(x, 0) for x in reversed(columns)]
-          for index, x in enumerate(columns):
-              rows = range(1, 7) if index % 2 == 0 else range(6, 0, -1)
-              route.extend((x, y) for y in rows)
-          route.append(route[0])
+          # Join loops on adjacent 2x2 tiles, then weave the last row into the route.
+          from random import Random
+
+          links = {cell: set() for cell in cells}
+
+          def connect(a, b):
+              links[a].add(b)
+              links[b].add(a)
+
+          def disconnect(a, b):
+              links[a].remove(b)
+              links[b].remove(a)
+
+          tiles = {(x, y) for x in columns[::2] for y in (0, 2, 4)}
+          for x, y in tiles:
+              corners = [(x, y), (x + 1, y), (x + 1, y + 1), (x, y + 1)]
+              for a, b in zip(corners, corners[1:] + corners[:1]):
+                  connect(a, b)
+
+          rng = Random(1501)
+          start = (columns[0], 0)
+          seen = {start}
+          frontier = [start]
+          while frontier:
+              x, y = frontier[-1]
+              neighbors = [(x + dx, y + dy) for dx, dy in ((2, 0), (-2, 0), (0, 2), (0, -2))
+                           if (x + dx, y + dy) in tiles - seen]
+              if not neighbors:
+                  frontier.pop()
+                  continue
+              nx, ny = rng.choice(neighbors)
+              seen.add((nx, ny))
+              frontier.append((nx, ny))
+              if nx != x:
+                  left = min(x, nx) + 1
+                  a, b, c, d = (left, y), (left, y + 1), (left + 1, y), (left + 1, y + 1)
+              else:
+                  top = min(y, ny) + 1
+                  a, b, c, d = (x, top), (x + 1, top), (x, top + 1), (x + 1, top + 1)
+              disconnect(a, b)
+              disconnect(c, d)
+              connect(a, c)
+              connect(b, d)
+
+          for x in columns[::2]:
+              a, b = (x, 5), (x + 1, 5)
+              c, d = (x, 6), (x + 1, 6)
+              disconnect(a, b)
+              connect(a, c)
+              connect(c, d)
+              connect(d, b)
+
+          route = [start, min(links[start])]
+          while route[-1] != start:
+              route.append(next(iter(links[route[-1]] - {route[-2]})))
+          assert len(set(route[:-1])) == len(route) - 1 == len(columns) * 7
           assert all(cell in cells for cell in route)
           assert all(abs(a[0] - b[0]) + abs(a[1] - b[1]) == 1 for a, b in zip(route, route[1:]))
 
           step, pad = 15, 6
           width, height = len(weeks) * step + 2 * pad - 3, 7 * step + 2 * pad - 3
-          duration = (len(route) - 1) * 0.075
+          duration = (len(route) - 1) * 0.090
           motion = ''.join(f'{i * 100 / (len(route) - 1):.6f}%{{transform:translate({pad + x * step}px,{pad + y * step}px)}}'
                            for i, (x, y) in enumerate(route))
           dest = Path('dist')
@@ -60,7 +110,7 @@ jobs:
                   parts.append(f'<rect x="{pad + x * step}" y="{pad + y * step}" width="12" height="12" rx="2" fill="{colors[level]}"/>')
               for index, color in reversed(list(enumerate(tones))):
                   x, y = route[-index - 1] if index else route[0]
-                  parts.append(f'<g class="segment" style="animation-delay:-{duration - index * 0.075:.3f}s" transform="translate({pad + x * step} {pad + y * step})">'
+                  parts.append(f'<g class="segment" style="animation-delay:-{duration - index * 0.090:.3f}s" transform="translate({pad + x * step} {pad + y * step})">'
                                f'<rect x="1" y="1" width="10" height="10" rx="3" fill="{color}"/></g>')
               parts.append('</svg>')
               (dest / filename).write_text('\n'.join(parts), encoding='utf-8')
