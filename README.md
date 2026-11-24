@@ -6,28 +6,6 @@
   <a href="#dự-án-nổi-bật"><img alt="Dự án nổi bật" src="https://img.shields.io/badge/Portfolio-Projects-c75b36?style=flat-square"></a>
 </p>
 
-## Công nghệ nổi bật
-
-<p>
-  <img alt="Node.js" src="https://img.shields.io/badge/Node.js-236644?style=flat-square&amp;logo=nodedotjs&amp;logoColor=white">
-  <img alt="Express" src="https://img.shields.io/badge/Express-293449?style=flat-square&amp;logo=express&amp;logoColor=white">
-  <img alt="MongoDB" src="https://img.shields.io/badge/MongoDB-126448?style=flat-square&amp;logo=mongodb&amp;logoColor=white">
-  <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-225aac?style=flat-square&amp;logo=typescript&amp;logoColor=white">
-  <img alt="React" src="https://img.shields.io/badge/React-164b66?style=flat-square&amp;logo=react&amp;logoColor=white">
-  <img alt="Next.js" src="https://img.shields.io/badge/Next.js-29233e?style=flat-square&amp;logo=nextdotjs&amp;logoColor=white">
-</p>
-
-## Mảng mình tập trung
-
-```mermaid
-flowchart LR
-    A["Dashboard quản trị"] --> B["REST API"]
-    B --> C["Dữ liệu MongoDB"]
-    B --> D["Kiểm tra giao dịch on-chain"]
-```
-
-Mình dùng Express để xây dựng API cho tài khoản, bài viết và đơn hàng. Với Next.js và React, mình làm các màn hình quản trị kết nối với API để theo dõi dữ liệu và xử lý yêu cầu xét duyệt.
-
 ## Dự án nổi bật
 
 <table>
@@ -57,6 +35,16 @@ Mình dùng Express để xây dựng API cho tài khoản, bài viết và đơ
   </tr>
 </table>
 
-## Hoạt động GitHub
+## Toolbox
 
-[Xem biểu đồ đóng góp và lịch sử hoạt động](https://github.com/tue1501#js-contribution-activity)
+<p align="center">
+  <img src="https://skillicons.dev/icons?i=nodejs,express,mongodb,ts,react,nextjs,git,github&amp;perline=8" alt="Node.js, Express, MongoDB, TypeScript, React, Next.js, Git và GitHub" width="490">
+</p>
+
+## Đóng góp trên GitHub
+
+<p align="center">
+  <a href="https://github.com/tue1501#js-contribution-activity">
+    <img src="https://ghchart.rshah.org/2ea043/tue1501" alt="Biểu đồ đóng góp GitHub của tue1501" width="100%">
+  </a>
+</p>
